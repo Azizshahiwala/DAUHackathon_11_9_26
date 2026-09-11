@@ -1,0 +1,16 @@
+node_modules/
+dist/
+build/
+
+keys.env
+.env 
+
+__pycache__/
+*.pyc
+venv/
+.venv/
+env/
+.idea/
+.vscode/
+*.sqlite3
+backend/app/dist/

@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: fullstack-web-app
+    env: python
+    buildCommand: "cd frontend && npm install && npm run build && cp -r dist ../backend/app/dist && cd ../backend && pip install -r requirements.txt"
+    startCommand: "cd backend && gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 2 --threads 4"
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fullstack-db
+          property: connectionString
+
+  - type: psql
+    name: fullstack-db
+    plan: free
