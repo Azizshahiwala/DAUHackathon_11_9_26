@@ -7,8 +7,6 @@ env_path = os.path.join(base_dir, "keys.env")
 load_dotenv(env_path)
 
 DATABASEURL = ""
-
-
 class ConfigError(Exception):
     def __init__(self, error="Config file environment issue.") -> None:
         super().__init__(error)
