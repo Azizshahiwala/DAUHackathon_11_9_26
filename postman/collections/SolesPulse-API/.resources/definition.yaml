@@ -1,0 +1,3 @@
+$kind: collection
+name: SolesPulse API
+description: API collection for the SolesPulse Renewable Energy Intelligence backend. Covers health check, authentication (register, login, logout).
