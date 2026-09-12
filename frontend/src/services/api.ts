@@ -10,6 +10,7 @@ import {
   MaintenanceStatus,
   AIOutput,
   LoginResponse,
+  UserInfo,
 } from '../types';
 
 import {
@@ -303,6 +304,60 @@ class ApiService {
     if (json.success && json.data) return json.data;
     throw new Error(json?.error?.message || 'Prediction failed');
   }
+
+  // ── Current user ──────────────────────────────────────────────────────────
+
+  /** GET /api/auth/me – returns the logged-in user's profile and role */
+  async getCurrentUser(): Promise<UserInfo | null> {
+    if (this.isMockMode) {
+      return { id: 1, email: 'operator@solepulse.energy', role: 'manager' };
+    }
+    try {
+      const res = await this.authFetch(`${BASE_URL}/auth/me`);
+      const json = await res.json();
+      if (json.success && json.data) return json.data as UserInfo;
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  // ── Create asset ──────────────────────────────────────────────────────────
+
+  /** POST /api/assets/ – register a new power-plant unit (operator/manager only) */
+  async createAsset(payload: {
+    name: string;
+    plant_name: string;
+    type: 'solar' | 'wind';
+    location: string;
+    latitude: number;
+    longitude: number;
+    rated_power_kw?: number;
+    string_group?: string;
+    commissioned_date?: string;
+  }): Promise<Asset> {
+    if (this.isMockMode) {
+      const mockAsset: Asset = {
+        asset_id: `MOCK-${Date.now()}`,
+        asset_type: payload.type === 'solar' ? 'solar_panel' : 'wind_turbine',
+        location: payload.location,
+        status: 'HEALTHY',
+        current_readings: {} as any,
+        prediction: {} as any,
+        last_updated: new Date().toISOString(),
+      };
+      MOCK_ASSETS.unshift(mockAsset);
+      return mockAsset;
+    }
+    const res = await this.authFetch(`${BASE_URL}/assets/`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    const json = await res.json();
+    if (json.success && json.data) return json.data;
+    throw new Error(json?.error?.message || 'Failed to create asset');
+  }
 }
 
 export const api = new ApiService();
+

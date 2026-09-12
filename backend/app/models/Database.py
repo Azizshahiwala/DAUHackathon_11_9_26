@@ -21,12 +21,19 @@ class Asset(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    type = db.Column(db.String(50)) # 'solar', 'wind'
-    location = db.Column(db.String(255))
+    plant_name = db.Column(db.String(150))          # Power plant / farm name
+    type = db.Column(db.String(50))                 # 'solar', 'wind'
+    location = db.Column(db.String(255))            # Human-readable location
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
-    rated_power_kw = db.Column(db.Float)
+    rated_power_kw = db.Column(db.Float)            # kW
+    string_group = db.Column(db.String(50))         # e.g. "String-A1"
+    commissioned_date = db.Column(db.Date, nullable=True)
     status = db.Column(db.String(50), default='Active')
+    # Audit – who added this asset
+    added_by_user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=True)
+    added_by_email = db.Column(db.String(120), nullable=True)
+    added_at = db.Column(db.DateTime, default=datetime.now(UTC))
 
 class SensorReading(db.Model):
     __tablename__ = 'SensorReadings'

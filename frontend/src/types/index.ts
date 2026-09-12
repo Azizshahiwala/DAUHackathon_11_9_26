@@ -164,4 +164,16 @@ export interface LoginResponse {
     role: string;
   };
 }
+// Authenticated user profile returned by GET /api/auth/me
+export interface UserInfo {
+  id: number;
+  email: string;
+  role: 'operator' | 'technician' | 'manager';
+}
+
+// Role capability map
+export const ROLE_CAN_ADD_ASSETS   = ['operator', 'manager'];
+export const ROLE_CAN_MANAGE_USERS = ['manager'];
+export const ROLE_CAN_VIEW_MAINTENANCE = ['technician', 'operator', 'manager'];
+
 

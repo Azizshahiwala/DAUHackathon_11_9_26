@@ -1,8 +1,7 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from app.models.Database import User, db
 from app.models.Encrypter import encrypter
-
 
 def error_response(code, message, details=None, status=400):
     return jsonify({"error": {"code": code, "message": message, "details": details or {}}}), status
@@ -47,3 +46,13 @@ def login():
 @authentication.route("/logout", methods=["POST"])
 def logout():
     return jsonify({"message": "Logged out successfully."}), 200
+
+@authentication.route("/me", methods=["GET"])
+@jwt_required()
+def me():
+    """Return the currently authenticated user's profile and role."""
+    user = User.query.get(int(get_jwt_identity()))
+    if not user:
+        return jsonify({"error": {"code": "not_found", "message": "User not found.", "details": {}}}), 404
+    return jsonify({"success": True, "data": user.to_dict()}), 200
+

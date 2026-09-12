@@ -50,13 +50,15 @@ class Config:
                 if os.getenv(var) is None:
                     raise ConfigError(error=f"{var} environment variable is not set.")
 
-            cls.DBHOSTNAME = os.getenv("DBHOSTNAME")
-            cls.DBDATABASE = os.getenv("DBDATABASE")
-            cls.DBUSERNAME = os.getenv("DBUSERNAME")
-            cls.DBPASSWORD = os.getenv("DBPASSWORD")
-            cls.DBPORT = os.getenv("DBPORT")
-            cls.FLASK_ENV = os.getenv("FLASK_ENV")
-            cls.OPENMETEO_API = os.getenv("OPENMETEO_API")
+            cls.SECRET_KEY     = os.getenv("SECRET_KEY")
+            cls.JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+            cls.DBHOSTNAME     = os.getenv("DBHOSTNAME")
+            cls.DBDATABASE     = os.getenv("DBDATABASE")
+            cls.DBUSERNAME     = os.getenv("DBUSERNAME")
+            cls.DBPASSWORD     = os.getenv("DBPASSWORD")
+            cls.DBPORT         = os.getenv("DBPORT")
+            cls.FLASK_ENV      = os.getenv("FLASK_ENV")
+            cls.OPENMETEO_API  = os.getenv("OPENMETEO_API")
         except ConfigError as err:
             print(err)
         except Exception as err:

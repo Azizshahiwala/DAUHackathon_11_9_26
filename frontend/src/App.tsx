@@ -6,8 +6,10 @@ import { WelcomeSection } from './components/solepulse/WelcomeSection';
 import { CompanyDetails } from './components/solepulse/CompanyDetails';
 import { LiveFleetSection } from './components/solepulse/LiveFleetSection';
 import { WindmillLoader } from './components/common/WindmillLoader';
+import { Login } from './pages/Login';
+import { Register } from './pages/Register';
 import { api } from './services/api';
-import { Phone, Mail, ArrowUp } from 'lucide-react';
+import { Phone, Mail, ArrowUp, LogOut } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<string>('home');
@@ -18,6 +20,11 @@ export const App: React.FC = () => {
     msg: 'Loading Sole Pulse Command Portal...',
     sub: 'Streaming solar & wind telemetry overview'
   });
+
+  // Auth state – check localStorage on mount
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => !!api.getToken());
+  const [authView, setAuthView] = useState<'login' | 'register'>('login');
+
 
   useEffect(() => {
     api.getAlerts().then(alerts => {
@@ -87,8 +94,41 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleLogout = async () => {
+    await api.logout();
+    setIsLoggedIn(false);
+    setAuthView('login');
+  };
+
+  // ── Auth gate ────────────────────────────────────────────────────────────
+  if (!isLoggedIn) {
+    if (authView === 'register') {
+      return <Register onGoLogin={() => setAuthView('login')} />;
+    }
+    return (
+      <Login
+        onLoginSuccess={() => setIsLoggedIn(true)}
+        onGoRegister={() => setAuthView('register')}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-white text-slate-800 font-sans selection:bg-urbanic-orange/20 selection:text-urbanic-orange">
+      {/* TOP AUTH BAR – shows logged-in user indicator + logout */}
+      <div className="bg-urbanic-dark border-b border-slate-800 px-6 py-1.5 flex items-center justify-end gap-3">
+        <span className="text-industrial-400 text-[11px] font-mono uppercase tracking-widest">
+          Operator Session Active
+        </span>
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-1.5 text-[11px] font-mono uppercase text-industrial-400 hover:text-urbanic-orange transition-colors"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          Logout
+        </button>
+      </div>
+
       {/* 
         ANIMATED SCROLLBAR PROGRESS INDICATOR:
         Vertical bar on right screen edge flowing from TOP to BOTTOM as user scrolls
@@ -104,6 +144,7 @@ export const App: React.FC = () => {
         onNavigate={handleNavigate}
         activeAlertsCount={activeAlertsCount}
       />
+
 
       {/* MAIN VIEW CONTENT */}
       <main className="flex-1 min-h-[60vh]">
