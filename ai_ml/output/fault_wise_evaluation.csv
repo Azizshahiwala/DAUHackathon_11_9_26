@@ -1,0 +1,9 @@
+fault_type,total_samples,detected,missed,detection_rate
+combined,640,640,0,100.0
+gradual_degradation,512,340,172,66.41
+low_current,650,650,0,100.0
+low_voltage,616,616,0,100.0
+overheating,647,647,0,100.0
+partial_shading,651,583,68,89.55
+power_degradation,648,622,26,95.99
+soiling,648,648,0,100.0

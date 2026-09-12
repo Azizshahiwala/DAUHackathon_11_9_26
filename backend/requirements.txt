@@ -9,3 +9,6 @@ Werkzeug
 marshmallow
 bcrypt==4.1.2
 Flask-JWT-Extended
+pytorch
+pandas 
+numpy
