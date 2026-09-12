@@ -172,8 +172,10 @@ export interface UserInfo {
 }
 
 // Role capability map
-export const ROLE_CAN_ADD_ASSETS   = ['operator', 'manager'];
-export const ROLE_CAN_MANAGE_USERS = ['manager'];
-export const ROLE_CAN_VIEW_MAINTENANCE = ['technician', 'operator', 'manager'];
+export const ROLE_CAN_ADD_ASSETS       = ['operator', 'manager'];
+export const ROLE_CAN_MANAGE_USERS     = ['manager'];
+export const ROLE_CAN_VIEW_KPI         = ['operator', 'manager'];
+export const ROLE_CAN_VIEW_MAINTENANCE = ['technician', 'manager'];
+export const ROLE_CAN_VIEW_ANALYTICS   = ['manager'];
 
 

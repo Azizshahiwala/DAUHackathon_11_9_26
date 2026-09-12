@@ -11,7 +11,7 @@ import {
   Bell, 
   RefreshCw 
 } from 'lucide-react';
-import { DashboardKPI, Asset, Alert } from '../../types';
+import { DashboardKPI, Asset, Alert, UserInfo, ROLE_CAN_VIEW_KPI, ROLE_CAN_VIEW_MAINTENANCE, ROLE_CAN_VIEW_ANALYTICS } from '../../types';
 import { api } from '../../services/api';
 import { StatCard } from '../dashboard/StatCard';
 import { AssetHealthCard } from '../dashboard/AssetHealthCard';
@@ -33,6 +33,7 @@ export const LiveFleetSection: React.FC = () => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<UserInfo | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isTabSwitching, setIsTabSwitching] = useState(false);
   const [tabSwitchInfo, setTabSwitchInfo] = useState({
@@ -86,14 +87,21 @@ export const LiveFleetSection: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const [kpiData, assetsData, alertsData] = await Promise.all([
+      const [kpiData, assetsData, alertsData, user] = await Promise.all([
         api.getDashboardKPI(),
         api.getAssets(),
         api.getAlerts(),
+        api.getCurrentUser(),
       ]);
       setKpi(kpiData);
       setAssets(assetsData);
       setAlerts(alertsData);
+      setCurrentUser(user);
+      
+      // Default routing based on role if they can't view KPI
+      if (user && !ROLE_CAN_VIEW_KPI.includes(user.role) && activeTab === 'kpi') {
+         setActiveTab('maintenance');
+      }
     } catch (err: any) {
       console.error(err);
       setError("Failed to stream live telemetry from farm gateway.");
@@ -155,13 +163,13 @@ export const LiveFleetSection: React.FC = () => {
         {/* Dashboard Sub-Tabs (Sharp Rectangular) */}
         <div className="flex items-center gap-1 overflow-x-auto border-b border-slate-300 pb-0">
           {[
-            { id: 'kpi', label: 'Fleet Overview', icon: Activity },
-            { id: 'table', label: 'Asset Directory (100)', icon: Cpu },
-            { id: 'details', label: `Diagnostics: ${selectedAssetId}`, icon: Zap },
-            { id: 'alerts', label: `Active Alerts (${alerts.filter(a => a.status === 'ACTIVE').length})`, icon: Bell },
-            { id: 'maintenance', label: 'Urgent Work Orders', icon: Wrench },
-            { id: 'analytics', label: 'Fleet Analytics', icon: BarChart3 },
-          ].map((tab) => {
+            { id: 'kpi', label: 'Fleet Overview', icon: Activity, show: !currentUser || ROLE_CAN_VIEW_KPI.includes(currentUser.role) },
+            { id: 'table', label: 'Asset Directory (100)', icon: Cpu, show: true },
+            { id: 'details', label: `Diagnostics: ${selectedAssetId}`, icon: Zap, show: true },
+            { id: 'alerts', label: `Active Alerts (${alerts.filter(a => a.status === 'ACTIVE').length})`, icon: Bell, show: true },
+            { id: 'maintenance', label: 'Urgent Work Orders', icon: Wrench, show: !currentUser || ROLE_CAN_VIEW_MAINTENANCE.includes(currentUser.role) },
+            { id: 'analytics', label: 'Fleet Analytics', icon: BarChart3, show: !currentUser || ROLE_CAN_VIEW_ANALYTICS.includes(currentUser.role) },
+          ].filter(t => t.show).map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             return (

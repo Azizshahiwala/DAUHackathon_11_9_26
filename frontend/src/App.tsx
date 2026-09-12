@@ -39,8 +39,18 @@ export const App: React.FC = () => {
       }
     };
 
+    const handleUnauthorized = () => {
+      setIsLoggedIn(false);
+      setAuthView('login');
+    };
+
     window.addEventListener('scroll', checkScroll);
-    return () => window.removeEventListener('scroll', checkScroll);
+    window.addEventListener('auth:unauthorized', handleUnauthorized);
+    
+    return () => {
+      window.removeEventListener('scroll', checkScroll);
+      window.removeEventListener('auth:unauthorized', handleUnauthorized);
+    };
   }, []);
 
   const navMeta: Record<string, { msg: string; sub: string }> = {

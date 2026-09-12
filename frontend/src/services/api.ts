@@ -68,7 +68,16 @@ class ApiService {
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
-    return fetch(url, { ...options, headers });
+    
+    const response = await fetch(url, { ...options, headers });
+    
+    // Auto-logout if token is invalid or expired
+    if (response.status === 401) {
+      clearToken();
+      window.dispatchEvent(new Event('auth:unauthorized'));
+    }
+    
+    return response;
   }
 
   // ── Auth ──────────────────────────────────────────────────────────────────
