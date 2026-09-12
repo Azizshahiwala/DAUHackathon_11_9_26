@@ -1,0 +1,30 @@
+PYTORCH SOLAR AUTOENCODER EVALUATION
+============================================================
+
+Device: cpu
+Total samples: 20000
+Actual normal: 14988
+Actual abnormal: 5012
+Predicted normal: 14573
+Predicted abnormal: 5427
+
+CONFUSION MATRIX
+True Negative : 14307
+False Positive: 681
+False Negative: 266
+True Positive : 4746
+
+MODEL PERFORMANCE
+Accuracy : 95.27%
+Precision: 87.45%
+Recall   : 94.69%
+F1 Score : 90.93%
+
+ANOMALY THRESHOLD
+1.033187
+
+RECONSTRUCTION ERROR
+Minimum: 0.001466
+Maximum: 99.236732
+Mean   : 4.401165
+Median : 0.573668

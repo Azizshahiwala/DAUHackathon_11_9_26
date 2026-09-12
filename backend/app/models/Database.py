@@ -1,67 +1,87 @@
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, Boolean, Float, Numeric, ForeignKey, Text, Index
-from sqlalchemy.orm import declarative_base, sessionmaker
-from sqlalchemy.dialects.postgresql import UUID
-import uuid
-from urllib.parse import quote_plus
-
+from app.extensions import db
 from datetime import datetime,UTC
-import os, sys
-import psycopg2
-from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config import Config 
 
-#Now load the variables first.
-DATABASEURL = ""
-Config.loadvariables()
-dbvar=Config.getDBvariables()    
+class User(db.Model):
+    __tablename__ = 'Users'
 
-DATABASEURL = fr"postgresql://{dbvar['USERNAME']}:{dbvar['PASSWORD']}@{dbvar['HOSTNAME']}:{dbvar['PORT']}/{dbvar['DATABASE']}"
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(128), nullable=False)
+    role = db.Column(db.String(20), default='operator')
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'email': self.email,
+            'role': self.role
+        }
 
-#Now check if the database exists or not if not, create it.
-#To do, we need to connect to the default 'postgres' database first, then check if our target database exists, and create it if it doesn't. This is because you cannot connect to a database that doesn't exist yet. 
-try:
-    conn = psycopg2.connect(
-        host=dbvar['HOSTNAME'],
-        port=dbvar['PORT'],
-        user=dbvar['USERNAME'],
-        password=dbvar['PASSWORD'],
-        dbname='postgres') 
+class Asset(db.Model):
+    __tablename__ = 'Assets'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    type = db.Column(db.String(50)) # 'solar', 'wind'
+    location = db.Column(db.String(255))
+    latitude = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
+    rated_power_kw = db.Column(db.Float)
+    status = db.Column(db.String(50), default='Active')
 
-    conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+class SensorReading(db.Model):
+    __tablename__ = 'SensorReadings'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    asset_id = db.Column(db.Integer, db.ForeignKey('Assets.id'), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    temperature = db.Column(db.Float)
+    vibration_rms = db.Column(db.Float)
+    current = db.Column(db.Float)
+    voltage = db.Column(db.Float)
+    power_output_kw = db.Column(db.Float)
+    wind_speed = db.Column(db.Float)
+    soiling_level = db.Column(db.Float)
 
-    #This code is only for development environment. NOT in production
-    with conn.cursor() as cursor: 
-        cursor.execute(f"SELECT 1 FROM pg_database WHERE datname='{dbvar['DATABASE']}'")
-        exists = cursor.fetchone()
-        if not exists:
-            cursor.execute(f'CREATE DATABASE "{dbvar["DATABASE"]}"')
-            print(f"Database '{dbvar['DATABASE']}' created successfully.")
-        else:
-            print(f"Database '{dbvar['DATABASE']}' already exists.")
-        print("Loop executed")
+class Alert(db.Model):
+    __tablename__ = 'Alerts'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    asset_id = db.Column(db.Integer, db.ForeignKey('Assets.id'), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    anomaly_score = db.Column(db.Float)
+    risk_level = db.Column(db.String(20)) # Low, Medium, High, Critical
+    estimated_energy_loss = db.Column(db.Float)
+    estimated_revenue_loss = db.Column(db.Float)
+    status = db.Column(db.String(50), default='Open')
 
-except psycopg2.OperationalError as e:
-        print(f"Error occurred: {e}")
+class MaintenanceLog(db.Model):
+    __tablename__ = 'MaintenanceLogs'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    asset_id = db.Column(db.Integer, db.ForeignKey('Assets.id'), nullable=False)
+    alert_id = db.Column(db.Integer, db.ForeignKey('Alerts.id'), nullable=True)
+    technician_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
+    action_taken = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, default=datetime.now(UTC))
+    notes = db.Column(db.Text)
 
-# 1. Create the SQLAlchemy Engine
-engine = create_engine(DATABASEURL)
+class WeatherForecast(db.Model):
+    __tablename__ = "WeatherForecast"
+    id = db.Column(db.Integer, primary_key=True)
+    asset_id = db.Column(db.Integer, db.ForeignKey('Assets.id'), nullable=False)
+    temperature = db.Column(db.Float, nullable=False)
+    solar_radiation = db.Column(db.Float, nullable=False)
+    wind_speed = db.Column(db.Float, nullable=False)
+    precipitation = db.Column(db.Float, nullable=True)
+    timestamp = db.Column(db.DateTime, default=datetime.now(UTC))
+    
 
-# 2. Create a SessionLocal class for database sessions
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# 3. Create the Base class for your models
-Base = declarative_base()
-
-def create_tables():
-    try: 
-        Base.metadata.create_all(bind=engine)
-    except Exception as e:
-         print(e)
-
-def db_session():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()    
+class Prediction(db.Model):
+    __tablename__ = "Prediction"
+    id = db.Column(db.Integer, primary_key=True)
+    asset_id = db.Column(db.Integer, db.ForeignKey('Assets.id'), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.now(UTC))
+    predicted_power_kw = db.Column(db.Float, nullable=False)
+    predicted_anomaly_score = db.Column(db.Float, nullable=True)
+    predicted_energy_loss = db.Column(db.Float, nullable=True)
+    
