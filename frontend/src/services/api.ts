@@ -33,6 +33,7 @@ const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 // Token storage helpers (localStorage)
 // ---------------------------------------------------------------------------
 const TOKEN_KEY = 'solepulse_jwt';
+const USER_KEY = 'solepulse_user';
 
 function saveToken(token: string) {
   localStorage.setItem(TOKEN_KEY, token);
@@ -44,6 +45,20 @@ function loadToken(): string | null {
 
 function clearToken() {
   localStorage.removeItem(TOKEN_KEY);
+}
+
+function saveUser(user: UserInfo) {
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+}
+
+function loadUser(): UserInfo | null {
+  const raw = localStorage.getItem(USER_KEY);
+  if (!raw) return null;
+  try { return JSON.parse(raw) as UserInfo; } catch { return null; }
+}
+
+function clearUser() {
+  localStorage.removeItem(USER_KEY);
 }
 
 // ---------------------------------------------------------------------------
@@ -74,6 +89,7 @@ class ApiService {
     // Auto-logout if token is invalid or expired
     if (response.status === 401) {
       clearToken();
+      clearUser();
       window.dispatchEvent(new Event('auth:unauthorized'));
     }
     
@@ -94,6 +110,9 @@ class ApiService {
       throw new Error(json?.error?.message || 'Login failed');
     }
     saveToken(json.token);
+    // Persist the role the backend actually returned, so mock mode and
+    // getCurrentUser() reflect who really logged in instead of a fixed role.
+    if (json.user) saveUser(json.user as UserInfo);
     return json as LoginResponse;
   }
 
@@ -103,6 +122,7 @@ class ApiService {
       await this.authFetch(`${BASE_URL}/auth/logout`, { method: 'POST' });
     } finally {
       clearToken();
+      clearUser();
     }
   }
 
@@ -319,7 +339,12 @@ class ApiService {
   /** GET /api/auth/me – returns the logged-in user's profile and role */
   async getCurrentUser(): Promise<UserInfo | null> {
     if (this.isMockMode) {
-      return { id: 1, email: 'operator@solepulse.energy', role: 'manager' };
+      // Was previously hardcoded to 'manager' for every user — that's why
+      // role-based UI never changed. Derive it from the stored login response
+      // instead, so the mock behaves like the real backend.
+      const cached = loadUser();
+      if (cached) return cached;
+      return null;
     }
     try {
       const res = await this.authFetch(`${BASE_URL}/auth/me`);

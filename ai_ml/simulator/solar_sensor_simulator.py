@@ -1,7 +1,12 @@
 import os
+import sys
 import random
+from pathlib import Path
 import pandas as pd
 
+AI_ML_DIR = Path(__file__).resolve().parent.parent
+if str(AI_ML_DIR) not in sys.path:
+    sys.path.insert(0, str(AI_ML_DIR))
 
 # ============================================================
 # CONFIGURATION
@@ -10,7 +15,7 @@ import pandas as pd
 NUM_ASSETS = 100
 READINGS_PER_ASSET = 200
 
-OUTPUT_FILE = "data/solar_sensor_data.csv"
+OUTPUT_FILE = str(AI_ML_DIR / "data" / "solar_sensor_data.csv")
 
 RANDOM_SEED = 42
 

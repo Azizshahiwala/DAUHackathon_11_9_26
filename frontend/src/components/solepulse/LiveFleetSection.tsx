@@ -11,7 +11,7 @@ import {
   Bell, 
   RefreshCw 
 } from 'lucide-react';
-import { DashboardKPI, Asset, Alert, UserInfo, ROLE_CAN_VIEW_KPI, ROLE_CAN_VIEW_MAINTENANCE, ROLE_CAN_VIEW_ANALYTICS } from '../../types';
+import { DashboardKPI, Asset, Alert, UserInfo } from '../../types';
 import { api } from '../../services/api';
 import { StatCard } from '../dashboard/StatCard';
 import { AssetHealthCard } from '../dashboard/AssetHealthCard';
@@ -70,6 +70,17 @@ export const LiveFleetSection: React.FC = () => {
 
   const handleTabChange = (newTab: 'kpi' | 'table' | 'details' | 'alerts' | 'maintenance' | 'analytics') => {
     if (newTab === activeTab && !isTabSwitching) return;
+    
+    // Explicit role checks using if-else
+    if (currentUser) {
+      if (currentUser.role === 'operator') {
+        if (newTab === 'maintenance' || newTab === 'analytics') return; // Blocked for operator
+      } else if (currentUser.role === 'technician') {
+        if (newTab === 'kpi' || newTab === 'analytics') return; // Blocked for technician
+      }
+      // Manager has access to all tabs, so no else block needed to restrict them.
+    }
+
     const info = tabMeta[newTab] || { msg: 'Switching Fleet Function...', sub: 'Synchronizing telemetry' };
     setTabSwitchInfo(info);
     setIsTabSwitching(true);
@@ -98,9 +109,11 @@ export const LiveFleetSection: React.FC = () => {
       setAlerts(alertsData);
       setCurrentUser(user);
       
-      // Default routing based on role if they can't view KPI
-      if (user && !ROLE_CAN_VIEW_KPI.includes(user.role) && activeTab === 'kpi') {
-         setActiveTab('maintenance');
+      // Default routing based on role
+      if (user) {
+        if (user.role === 'technician' && activeTab === 'kpi') {
+          setActiveTab('maintenance');
+        }
       }
     } catch (err: any) {
       console.error(err);
@@ -162,14 +175,39 @@ export const LiveFleetSection: React.FC = () => {
 
         {/* Dashboard Sub-Tabs (Sharp Rectangular) */}
         <div className="flex items-center gap-1 overflow-x-auto border-b border-slate-300 pb-0">
-          {[
-            { id: 'kpi', label: 'Fleet Overview', icon: Activity, show: !currentUser || ROLE_CAN_VIEW_KPI.includes(currentUser.role) },
-            { id: 'table', label: 'Asset Directory (100)', icon: Cpu, show: true },
-            { id: 'details', label: `Diagnostics: ${selectedAssetId}`, icon: Zap, show: true },
-            { id: 'alerts', label: `Active Alerts (${alerts.filter(a => a.status === 'ACTIVE').length})`, icon: Bell, show: true },
-            { id: 'maintenance', label: 'Urgent Work Orders', icon: Wrench, show: !currentUser || ROLE_CAN_VIEW_MAINTENANCE.includes(currentUser.role) },
-            { id: 'analytics', label: 'Fleet Analytics', icon: BarChart3, show: !currentUser || ROLE_CAN_VIEW_ANALYTICS.includes(currentUser.role) },
-          ].filter(t => t.show).map((tab) => {
+          {(() => {
+            // Explicitly build the allowed tabs array based on role
+            let allowedTabs: Array<{ id: string, label: string, icon: any }> = [];
+            
+            const baseTabs = [
+              { id: 'table', label: 'Asset Directory (100)', icon: Cpu },
+              { id: 'details', label: `Diagnostics: ${selectedAssetId}`, icon: Zap },
+              { id: 'alerts', label: `Active Alerts (${alerts.filter(a => a.status === 'ACTIVE').length})`, icon: Bell }
+            ];
+
+            if (currentUser?.role === 'manager') {
+              allowedTabs = [
+                { id: 'kpi', label: 'Fleet Overview', icon: Activity },
+                ...baseTabs,
+                { id: 'maintenance', label: 'Urgent Work Orders', icon: Wrench },
+                { id: 'analytics', label: 'Fleet Analytics', icon: BarChart3 }
+              ];
+            } else if (currentUser?.role === 'operator') {
+              allowedTabs = [
+                { id: 'kpi', label: 'Fleet Overview', icon: Activity },
+                ...baseTabs
+              ];
+            } else if (currentUser?.role === 'technician') {
+              allowedTabs = [
+                { id: 'maintenance', label: 'Urgent Work Orders', icon: Wrench },
+                ...baseTabs
+              ];
+            } else {
+              // Fallback if loading or no user
+              allowedTabs = baseTabs;
+            }
+
+            return allowedTabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             return (
@@ -186,7 +224,7 @@ export const LiveFleetSection: React.FC = () => {
                 <span>{tab.label}</span>
               </button>
             );
-          })}
+          })})()}
         </div>
 
         {/* LOADING STATE WITH ANIMATED WINDMILL CONCEPT */}
@@ -262,22 +300,26 @@ export const LiveFleetSection: React.FC = () => {
                 color="rose"
                 onClick={() => setActiveTab('alerts')}
               />
-              <StatCard
-                title="Energy Loss"
-                value={`${kpi.total_energy_loss_kwh} kWh`}
-                subtitle="Est. Daily Drag"
-                icon={Zap}
-                color="amber"
-                onClick={() => setActiveTab('maintenance')}
-              />
-              <StatCard
-                title="Revenue Drag"
-                value={`$${kpi.total_revenue_loss}`}
-                subtitle="Est. Financial Lost"
-                icon={DollarSign}
-                color="rose"
-                onClick={() => setActiveTab('maintenance')}
-              />
+              {currentUser && currentUser.role === 'manager' && (
+                <>
+                  <StatCard
+                    title="Energy Loss"
+                    value={`${kpi.total_energy_loss_kwh} kWh`}
+                    subtitle="Est. Daily Drag"
+                    icon={Zap}
+                    color="amber"
+                    onClick={() => setActiveTab('analytics')}
+                  />
+                  <StatCard
+                    title="Revenue Drag"
+                    value={`$${kpi.total_revenue_loss}`}
+                    subtitle="Est. Financial Lost"
+                    icon={DollarSign}
+                    color="rose"
+                    onClick={() => setActiveTab('analytics')}
+                  />
+                </>
+              )}
             </div>
 
             {/* Health Bar + Active Alerts */}
@@ -305,7 +347,10 @@ export const LiveFleetSection: React.FC = () => {
                     Priority Incident: Solar String P999
                   </h4>
                   <p className="text-[11px] text-slate-500">
-                    Reconstruction error 50.293 (threshold: 1.033). Losing $52.99 / day due to combined soiling and diode hotspot.
+                    Reconstruction error 50.293 (threshold: 1.033).
+                    {currentUser && currentUser.role === 'manager' && (
+                      <span className="ml-1 text-rose-700 font-bold">Losing $52.99 / day due to combined soiling and diode hotspot.</span>
+                    )}
                   </p>
                 </div>
               </div>
@@ -349,14 +394,14 @@ export const LiveFleetSection: React.FC = () => {
         )}
 
         {/* Tab 5: Prioritized Maintenance Queue */}
-        {!loading && !error && !isTabSwitching && activeTab === 'maintenance' && (
+        {!loading && !error && !isTabSwitching && activeTab === 'maintenance' && currentUser && (currentUser.role === 'manager' || currentUser.role === 'technician') && (
           <div className="space-y-3">
             <Maintenance onInspectAsset={handleInspectAsset} />
           </div>
         )}
 
         {/* Tab 6: Fleet Analytics */}
-        {!loading && !error && !isTabSwitching && activeTab === 'analytics' && (
+        {!loading && !error && !isTabSwitching && activeTab === 'analytics' && currentUser && currentUser.role === 'manager' && (
           <div className="space-y-3">
             <Analytics />
           </div>

@@ -208,7 +208,15 @@ export const Assets: React.FC<AssetsProps> = ({ onSelectAsset, initialFilter = '
     setTimeout(() => setAddSuccess(null), 5000);
   };
 
-  const canAddAssets = currentUser && ['manager', 'operator'].includes(currentUser.role);
+    // Explicit if-else for adding assets
+  let canAddAssets = false;
+  if (currentUser) {
+    if (currentUser.role === 'manager' || currentUser.role === 'operator') {
+      canAddAssets = true;
+    } else if (currentUser.role === 'technician') {
+      canAddAssets = false;
+    }
+  }
 
   return (
     <div className="space-y-4">

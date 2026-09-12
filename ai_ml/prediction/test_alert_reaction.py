@@ -1,4 +1,18 @@
+import os
+import sys
 import json
+from pathlib import Path
+
+# Ensure ai_ml root and project root are in sys.path
+AI_ML_DIR = Path(__file__).resolve().parent.parent
+if str(AI_ML_DIR) not in sys.path:
+    sys.path.insert(0, str(AI_ML_DIR))
+
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
 
 from prediction.predict import predict_sensor_reading
 

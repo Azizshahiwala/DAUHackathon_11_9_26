@@ -4,17 +4,21 @@ from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 
 
+import os
+import sys
+from pathlib import Path
+
+AI_ML_DIR = Path(__file__).resolve().parent.parent
+if str(AI_ML_DIR) not in sys.path:
+    sys.path.insert(0, str(AI_ML_DIR))
+
 # ============================================================
 # FILES
 # ============================================================
 
-TRAIN_FILE = "data/train_data.pt"
-
-VALIDATION_FILE = (
-    "data/validation_data.pt"
-)
-
-TEST_FILE = "data/test_data.pt"
+TRAIN_FILE = str(AI_ML_DIR / "data" / "train_data.pt")
+VALIDATION_FILE = str(AI_ML_DIR / "data" / "validation_data.pt")
+TEST_FILE = str(AI_ML_DIR / "data" / "test_data.pt")
 
 
 # ============================================================

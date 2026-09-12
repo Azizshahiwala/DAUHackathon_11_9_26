@@ -1,8 +1,13 @@
 import os
+import sys
 import json
 import torch
 import numpy as np
 
+# Ensure ai_ml root is in sys.path
+AI_ML_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if AI_ML_DIR not in sys.path:
+    sys.path.insert(0, AI_ML_DIR)
 
 from models.solar_autoencoder import SolarAutoencoder
 
@@ -11,11 +16,11 @@ from models.solar_autoencoder import SolarAutoencoder
 #                    CONFIGURATION
 # ============================================================
 
-MODEL_FILE = "models/solar_autoencoder.pth"
+MODEL_FILE = os.path.join(AI_ML_DIR, "models", "solar_autoencoder.pth")
 
-TRAIN_DATA_FILE = "data/train_data.pt"
+TRAIN_DATA_FILE = os.path.join(AI_ML_DIR, "data", "train_data.pt")
 
-THRESHOLD_FILE = "data/threshold.txt"
+THRESHOLD_FILE = os.path.join(AI_ML_DIR, "data", "threshold.txt")
 
 
 # ============================================================

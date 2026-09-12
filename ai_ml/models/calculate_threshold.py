@@ -1,4 +1,11 @@
 import os
+import sys
+from pathlib import Path
+
+AI_ML_DIR = Path(__file__).resolve().parent.parent
+if str(AI_ML_DIR) not in sys.path:
+    sys.path.insert(0, str(AI_ML_DIR))
+
 import torch
 import numpy as np
 
@@ -10,9 +17,9 @@ from models.solar_autoencoder import SolarAutoencoder
 # CONFIGURATION
 # ============================================================
 
-MODEL_FILE = "models/solar_autoencoder.pth"
+MODEL_FILE = str(AI_ML_DIR / "models" / "solar_autoencoder.pth")
 
-THRESHOLD_FILE = "data/threshold.txt"
+THRESHOLD_FILE = str(AI_ML_DIR / "data" / "threshold.txt")
 
 PERCENTILE = 95
 
