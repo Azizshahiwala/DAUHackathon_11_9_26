@@ -61,21 +61,9 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    db_url = os.environ.get('DATABASE_URL', 'sqlite:///dev.db')
-    if db_url.startswith('postgres://'):
-        db_url = db_url.replace('postgres://', 'postgresql+psycopg://', 1)
-    elif db_url.startswith('postgresql://'):
-        db_url = db_url.replace('postgresql://', 'postgresql+psycopg://', 1)
-    SQLALCHEMY_DATABASE_URI = db_url
 
 class ProductionConfig(Config):
     DEBUG = False
-    db_url = os.environ.get('DATABASE_URL', '')
-    if db_url.startswith('postgres://'):
-        db_url = db_url.replace('postgres://', 'postgresql+psycopg://', 1)
-    elif db_url.startswith('postgresql://'):
-        db_url = db_url.replace('postgresql://', 'postgresql+psycopg://', 1)
-    SQLALCHEMY_DATABASE_URI = db_url
     
     # Secure cookie settings for production
     SESSION_COOKIE_SECURE = True
@@ -84,6 +72,25 @@ class ProductionConfig(Config):
     
     JWT_COOKIE_SECURE = True
     JWT_COOKIE_SAMESITE = 'Lax'
+
+def build_db_url():
+    Config.loadvariables()
+    dbvar = Config.getDBvariables()
+    if dbvar.get('HOSTNAME') and dbvar.get('USERNAME') and dbvar.get('DATABASE'):
+        port_str = f":{dbvar['PORT']}" if dbvar.get('PORT') else ""
+        pwd_str = f":{dbvar['PASSWORD']}" if dbvar.get('PASSWORD') else ""
+        return f"postgresql+psycopg://{dbvar['USERNAME']}{pwd_str}@{dbvar['HOSTNAME']}{port_str}/{dbvar['DATABASE']}"
+    
+    # Fallback to DATABASE_URL if manually set
+    db_url = os.environ.get('DATABASE_URL', '')
+    if db_url.startswith('postgres://'):
+        db_url = db_url.replace('postgres://', 'postgresql+psycopg://', 1)
+    elif db_url.startswith('postgresql://'):
+        db_url = db_url.replace('postgresql://', 'postgresql+psycopg://', 1)
+    return db_url
+
+DevelopmentConfig.SQLALCHEMY_DATABASE_URI = build_db_url() or 'sqlite:///dev.db'
+ProductionConfig.SQLALCHEMY_DATABASE_URI = build_db_url()
 
 config_by_name = dict(
     development=DevelopmentConfig,
