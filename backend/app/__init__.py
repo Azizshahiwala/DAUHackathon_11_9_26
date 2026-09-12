@@ -22,9 +22,11 @@ def create_app(config_name="development"):
     # Register blueprints
     from app.api.health import health_bp
     from app.api.auth import authentication
+    from app.api.Maths import maths_bp
     
     app.register_blueprint(health_bp, url_prefix='/api')
     app.register_blueprint(authentication, url_prefix='/api/auth')
+    app.register_blueprint(maths_bp, url_prefix='/api/maths')
     
     # Add ProxyFix for Render
     if config_name == "production":
