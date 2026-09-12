@@ -1,7 +1,9 @@
 import os
 from flask import Flask, send_from_directory, jsonify
+from flask_cors import CORS
 from app.config import config_by_name
 from app.extensions import db, migrate, jwt
+
 
 def create_app(config_name="development"):
     app = Flask(__name__, static_folder='dist/assets')
@@ -11,6 +13,8 @@ def create_app(config_name="development"):
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
+    CORS(app, resources={r"/api/*": {"origins": ["http://localhost:5173", "http://127.0.0.1:5173"]}},
+         supports_credentials=True)
     
     # Configure JWT to use cookies by default, with CSRF protection enabled in prod
     app.config['JWT_TOKEN_LOCATION'] = ['cookies', 'headers']
@@ -22,11 +26,19 @@ def create_app(config_name="development"):
     # Register blueprints
     from app.api.health import health_bp
     from app.api.auth import authentication
-    from app.api.Maths import maths_bp
+    from app.api.maths import maths_bp
+    from app.api.assets import assets_bp
+    from app.api.alerts import alerts_bp
+    from app.api.maintenance import maintenance_bp
+    from app.api.analytics import analytics_bp
     
     app.register_blueprint(health_bp, url_prefix='/api')
     app.register_blueprint(authentication, url_prefix='/api/auth')
-    app.register_blueprint(maths_bp, url_prefix='/api/maths')
+    app.register_blueprint(maths_bp)
+    app.register_blueprint(assets_bp)
+    app.register_blueprint(alerts_bp)
+    app.register_blueprint(maintenance_bp)
+    app.register_blueprint(analytics_bp)
     
     # Add ProxyFix for Render
     if config_name == "production":

@@ -154,3 +154,14 @@ export interface ApiResponse<T> {
   error?: string;
   message?: string;
 }
+
+// Auth – Login response from POST /api/auth/login
+export interface LoginResponse {
+  token: string;
+  user: {
+    id: number;
+    email: string;
+    role: string;
+  };
+}
+

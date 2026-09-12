@@ -11,7 +11,6 @@ class ConfigError(Exception):
     def __init__(self, error="Config file environment issue.") -> None:
         super().__init__(error)
 
-
 class Config:
     FLASK_APP = None
     FLASK_DEBUG = None
