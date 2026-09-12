@@ -21,10 +21,10 @@ def create_app(config_name="development"):
     
     # Register blueprints
     from app.api.health import health_bp
-    from app.api.auth import auth_bp
+    from app.api.auth import authentication
     
     app.register_blueprint(health_bp, url_prefix='/api')
-    app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(authentication, url_prefix='/api/auth')
     
     # Add ProxyFix for Render
     if config_name == "production":
