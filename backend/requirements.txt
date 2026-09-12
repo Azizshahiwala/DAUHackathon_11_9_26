@@ -13,3 +13,4 @@ Flask-JWT-Extended
 torch
 pandas 
 numpy
+requests
