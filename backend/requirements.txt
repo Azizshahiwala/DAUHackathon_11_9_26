@@ -5,6 +5,7 @@ Flask-Login
 python-dotenv
 gunicorn
 psycopg[binary]
+psycopg2
 Werkzeug
 marshmallow
 bcrypt==4.1.2

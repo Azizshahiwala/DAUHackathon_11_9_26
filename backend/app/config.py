@@ -4,8 +4,7 @@ from dotenv import load_dotenv
 base_dir = Path(__file__).parent.resolve()
 env_path = os.path.join(base_dir,"keys.env")
 load_dotenv(os.path.join(base_dir,"keys.env"))
-print("Base directory containing env file:",base_dir)
-print("ENV file found:",env_path)
+DATABASEURL = ""
 class ConfigError(Exception):
     def __init__(self,error="Config file environment issue.") -> None:
         super().__init__(error)
@@ -33,18 +32,19 @@ class Config:
                         'DBDATABASE',
                         'DBUSERNAME',
                         'DBPASSWORD',
-                        'DBPORT'
+                        'DBPORT',
+                        'FLASK_ENV'
                         ]
             for var in required_variables:
-                # if os.getenv(var) is None:
-                #     raise ConfigError(error=f"{var} environment variable is not set.")
-                pass        
+                if os.getenv(var) is None:
+                    raise ConfigError(error=f"{var} environment variable is not set.")
+                      
             cls.DBHOSTNAME = os.getenv("DBHOSTNAME")
             cls.DBDATABASE = os.getenv("DBDATABASE")
             cls.DBUSERNAME = os.getenv("DBUSERNAME")
             cls.DBPASSWORD = os.getenv("DBPASSWORD")
             cls.DBPORT = os.getenv("DBPORT")
-
+            cls.FLASK_ENV = os.getenv("FLASK_ENV")
         except ConfigError as err:
             print(err)
         except Exception as err:
@@ -63,6 +63,7 @@ class DevelopmentConfig(Config):
     DEBUG = True
 
 class ProductionConfig(Config):
+    SQLALCHEMY_DATABASE_URI = None
     DEBUG = False
     
     # Secure cookie settings for production
@@ -74,20 +75,17 @@ class ProductionConfig(Config):
     JWT_COOKIE_SAMESITE = 'Lax'
 
 def build_db_url():
-    Config.loadvariables()
-    dbvar = Config.getDBvariables()
-    if dbvar.get('HOSTNAME') and dbvar.get('USERNAME') and dbvar.get('DATABASE'):
-        port_str = f":{dbvar['PORT']}" if dbvar.get('PORT') else ""
-        pwd_str = f":{dbvar['PASSWORD']}" if dbvar.get('PASSWORD') else ""
-        return f"postgresql+psycopg://{dbvar['USERNAME']}{pwd_str}@{dbvar['HOSTNAME']}{port_str}/{dbvar['DATABASE']}"
-    
-    # Fallback to DATABASE_URL if manually set
-    db_url = os.environ.get('DATABASE_URL', '')
-    if db_url.startswith('postgres://'):
-        db_url = db_url.replace('postgres://', 'postgresql+psycopg://', 1)
-    elif db_url.startswith('postgresql://'):
-        db_url = db_url.replace('postgresql://', 'postgresql+psycopg://', 1)
-    return db_url
+    try:
+        Config.loadvariables()
+        dbvar = Config.getDBvariables()
+        if dbvar.get('HOSTNAME') and dbvar.get('USERNAME') and dbvar.get('DATABASE'):
+            DATABASEURL = fr"postgresql://{dbvar['USERNAME']}:{dbvar['PASSWORD']}@{dbvar['HOSTNAME']}:{dbvar['PORT']}/{dbvar['DATABASE']}"
+            return DATABASEURL
+        
+        # If variables are missing, fallback to SQLite for dev or empty string for prod
+        return ""
+    except Exception as e:
+        print(e)
 
 DevelopmentConfig.SQLALCHEMY_DATABASE_URI = build_db_url() or 'sqlite:///dev.db'
 ProductionConfig.SQLALCHEMY_DATABASE_URI = build_db_url()
