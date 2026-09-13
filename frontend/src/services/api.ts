@@ -384,9 +384,12 @@ class ApiService {
       if (res.status === 401) {
         this.handleUnauthorized();
       }
-      const json = await res.json();
+      
+      const json = await res.json().catch(() => ({}));
       if (json.success && json.data) return json.data;
-      return null;
+      
+      // Fallback to mock if it's a simulated asset or not found in DB
+      return MOCK_ASSETS.find(a => a.asset_id.toLowerCase() === id.toLowerCase()) || null;
     } catch (err) {
       console.warn(`[API Service] Backend unreachable for asset ${id}, using mock.`, err);
       return MOCK_ASSETS.find(a => a.asset_id.toLowerCase() === id.toLowerCase()) || null;

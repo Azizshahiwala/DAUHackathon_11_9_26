@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app.models.Database import Asset, SensorReading, User, db
+from app.models.Database import Asset, SensorReading, User, Alert, MaintenanceLog, db
 from datetime import datetime
 
 assets_bp = Blueprint("assets", __name__, url_prefix="/api/assets")
@@ -99,7 +99,7 @@ def list_assets():
     return jsonify({"success": True, "data": [asset_to_frontend(a) for a in assets]}), 200
 
 
-@assets_bp.route("/<int:asset_id>", methods=["GET"])
+@assets_bp.route("/<string:asset_id>", methods=["GET"])
 @jwt_required(optional=True)
 def get_asset(asset_id):
     """Get a single asset by ID."""
@@ -109,7 +109,7 @@ def get_asset(asset_id):
     return jsonify({"success": True, "data": asset_to_frontend(a)}), 200
 
 
-@assets_bp.route("/<int:asset_id>/readings", methods=["GET"])
+@assets_bp.route("/<string:asset_id>/readings", methods=["GET"])
 @jwt_required(optional=True)
 def get_readings(asset_id):
     """Get the last 100 sensor readings for an asset."""
@@ -225,7 +225,7 @@ def create_asset():
     db.session.commit()
     return jsonify({"success": True, "data": asset_to_frontend(asset)}), 201
 
-@assets_bp.route("/<int:asset_id>", methods=["DELETE"])
+@assets_bp.route("/<string:asset_id>", methods=["DELETE"])
 @jwt_required()
 def delete_asset(asset_id):
     """Delete an asset by ID."""

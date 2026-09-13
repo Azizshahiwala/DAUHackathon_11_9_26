@@ -45,11 +45,11 @@ export const App: React.FC = () => {
     };
 
     window.addEventListener('scroll', checkScroll);
-    window.addEventListener('auth:unauthorized', handleUnauthorized);
+    window.addEventListener('solepulse:unauthorized', handleUnauthorized);
     
     return () => {
       window.removeEventListener('scroll', checkScroll);
-      window.removeEventListener('auth:unauthorized', handleUnauthorized);
+      window.removeEventListener('solepulse:unauthorized', handleUnauthorized);
     };
   }, []);
 
