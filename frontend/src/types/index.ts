@@ -3,10 +3,10 @@ export interface SensorReading {
   reading_id?: string;
   asset_id: string;
   timestamp: string;
-  temperature: number;      // °C
+  temperature: number;      // Â°C
   voltage: number;          // Volts (V)
   current: number;          // Amperes (A)
-  irradiance: number;       // Solar radiation (W/m²)
+  irradiance: number;       // Solar radiation (W/mÂ²)
   soiling: number;          // Soiling accumulation ratio (%)
   power_output: number;     // Generated power (kW)
   condition?: 'normal' | 'abnormal';
@@ -104,14 +104,29 @@ export interface DashboardKPI {
   open_meteo_ambient: WeatherData;
 }
 
-// Open-Meteo Environmental Weather Data
+// Open-Meteo / Tomorrow.io Environmental Weather Data
 export interface WeatherData {
-  ambient_temperature: number; // °C
-  solar_radiation: number;     // W/m² (shortwave)
+  ambient_temperature: number; // Â°C
+  solar_radiation: number;     // W/mÂ² (shortwave)
   cloud_cover: number;         // %
   wind_speed: number;          // km/h
   wind_direction: number;      // degrees
+  humidity?: number;           // %
+  uv_index?: number;
   last_fetched: string;
+  source?: string;
+  model?: string;
+}
+
+// Hourly Weather Forecast Data
+export interface WeatherHour {
+  time: string;
+  display_time: string;
+  temperature: number;
+  solar_radiation: number;
+  wind_speed: number;
+  cloud_cover: number;
+  humidity?: number;
 }
 
 // AI Model Performance Benchmark Evaluation
@@ -155,7 +170,7 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
-// Auth – Login response from POST /api/auth/login
+// Auth â€“ Login response from POST /api/auth/login
 export interface LoginResponse {
   token: string;
   user: {
@@ -170,5 +185,41 @@ export interface UserInfo {
   email: string;
   role: 'operator' | 'technician' | 'manager';
 }
+
+
+export interface User {
+  id: number;
+  email: string;
+  role: 'operator' | 'technician' | 'manager';
+}
+
+export interface AuthResponse {
+  success: boolean;
+  token?: string;
+  access_token?: string;
+  user?: User;
+  error?: string;
+  message?: string;
+}
+
+export interface LoginCredentials {
+  email: string;
+  password?: string;
+}
+
+export interface RegisterPayload {
+  email: string;
+  password?: string;
+  role: string;
+}
+
+export interface CreateAssetPayload {
+  asset_id: string;
+  asset_type: 'solar_panel' | 'wind_turbine';
+  location: string;
+  rated_capacity_kw: number;
+  string_group?: string;
+}
+
 
 

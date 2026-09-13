@@ -13,7 +13,8 @@ def create_app(config_name="development"):
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
-    CORS(app, resources={r"/*": {"origins": "*"}})
+    cors_origins = [orig.strip() for orig in os.environ.get("CORS_ORIGINS", "*").split(",") if orig.strip()]
+    CORS(app, resources={r"/*": {"origins": cors_origins}}, supports_credentials=True)
     
     # Configure JWT to use cookies by default, with CSRF protection enabled in prod
     app.config['JWT_TOKEN_LOCATION'] = ['cookies', 'headers']
@@ -25,7 +26,6 @@ def create_app(config_name="development"):
     # Register blueprints
     from app.api.health import health_bp
     from app.api.auth import authentication
-    from app.api.Maths import maths_bp
     from app.api.assets import assets_bp
     from app.api.alerts import alerts_bp
     from app.api.maintenance import maintenance_bp
@@ -33,7 +33,6 @@ def create_app(config_name="development"):
     
     app.register_blueprint(health_bp, url_prefix='/api')
     app.register_blueprint(authentication, url_prefix='/api/auth')
-    app.register_blueprint(maths_bp)
     app.register_blueprint(assets_bp)
     app.register_blueprint(alerts_bp)
     app.register_blueprint(maintenance_bp)

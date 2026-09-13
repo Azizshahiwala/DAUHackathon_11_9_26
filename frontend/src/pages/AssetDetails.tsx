@@ -228,7 +228,17 @@ export const AssetDetails: React.FC<AssetDetailsProps> = ({ assetId, onBack }) =
                 <strong className="text-slate-900">Recommended Action:</strong> {pred.recommended_action}
               </span>
             </div>
-            <RiskBadge level={pred.maintenance_priority} labelPrefix="Priority" size="sm" />
+            <div className="flex items-center gap-3">
+              <RiskBadge level={pred.maintenance_priority} labelPrefix="Priority" size="sm" />
+              {(asset.status === 'CRITICAL' || asset.status === 'WARNING') && (
+                <button 
+                  onClick={() => alert(`Generating Maintenance Work Order TASK-${asset.asset_id}...`)}
+                  className="px-3 py-1.5 bg-urbanic-orange hover:bg-urbanic-orangeHover text-white text-[10px] font-bold uppercase tracking-wider transition-colors rounded-none shadow-sm"
+                >
+                  Dispatch Technician
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -294,15 +304,21 @@ export const AssetDetails: React.FC<AssetDetailsProps> = ({ assetId, onBack }) =
             <span className="text-[9px] text-slate-500">Target: &lt; 8%</span>
           </div>
 
-          <div className="bg-white p-3 border border-slate-300 rounded-none">
+          <div className="bg-white p-3 border border-slate-300 rounded-none relative">
             <div className="text-[9px] uppercase text-slate-500 flex items-center justify-between font-bold">
               <span>Power Output</span>
               <Gauge className="w-3 h-3 text-emerald-700" />
             </div>
-            <p className="text-lg font-bold text-emerald-700 mt-0.5">
+            <p className={`text-lg font-bold mt-0.5 ${isAnomaly ? 'text-rose-600' : 'text-emerald-700'}`}>
               {readings.power_output} kW
             </p>
-            <span className="text-[9px] text-slate-500">Rating: 0.36 kW</span>
+            {isAnomaly && pred?.energy_loss_kwh ? (
+              <span className="text-[9px] text-rose-600 font-bold block">
+                Exp: {(readings.power_output + (pred.energy_loss_kwh / 24)).toFixed(3)} kW
+              </span>
+            ) : (
+              <span className="text-[9px] text-slate-500">Rating: 0.36 kW</span>
+            )}
           </div>
         </div>
       </div>

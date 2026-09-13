@@ -85,38 +85,49 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigateTab, onSelectAss
 
   return (
     <div className="space-y-4">
-      {/* Top Banner: Open-Meteo Ambient Conditions */}
+      {/* Top Banner: Tomorrow.io Ambient Conditions */}
       <div className="bg-white p-3.5 border-l-4 border-l-urbanic-orange border-t border-r border-b border-slate-300 rounded-none flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <div className="p-2 bg-orange-100 text-urbanic-orange rounded-none">
             <Sun className="w-4 h-4" />
           </div>
           <div>
-            <h2 className="text-xs font-bold text-slate-900 uppercase">
-              Solar & Wind Farm Ambient Conditions (Open-Meteo)
-            </h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-xs font-bold text-slate-900 uppercase">
+                Ambient Conditions (Tomorrow.io 72h Engine)
+              </h2>
+              <span className="flex items-center gap-1.5 text-[10px] text-emerald-600 font-bold uppercase tracking-wider bg-emerald-50 px-2 py-0.5 border border-emerald-200">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                Live Socket
+              </span>
+            </div>
             <p className="text-[11px] text-slate-500">
-              Synchronized with 6-feature neural autoencoder
+              Real-time synchronization with PyTorch autoencoder pipeline
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-4 font-mono text-xs">
-          <div>
-            <span className="text-slate-400 block text-[9px] uppercase font-bold">Solar Radiation</span>
-            <span className="font-bold text-amber-700">{kpi.open_meteo_ambient.solar_radiation} W/m²</span>
+        {kpi.open_meteo_ambient && (
+          <div className="flex items-center gap-4 font-mono text-xs">
+            <div>
+              <span className="text-slate-400 block text-[9px] uppercase font-bold">Solar Radiation</span>
+              <span className="font-bold text-amber-700">{kpi.open_meteo_ambient.solar_radiation} W/m²</span>
+            </div>
+            <div className="w-px h-5 bg-slate-300"></div>
+            <div>
+              <span className="text-slate-400 block text-[9px] uppercase font-bold">Ambient Temp</span>
+              <span className="font-bold text-cyan-700">{kpi.open_meteo_ambient.ambient_temperature}°C</span>
+            </div>
+            <div className="w-px h-5 bg-slate-300"></div>
+            <div>
+              <span className="text-slate-400 block text-[9px] uppercase font-bold">Wind Vectors</span>
+              <span className="font-bold text-indigo-700">{kpi.open_meteo_ambient.wind_speed} km/h</span>
+            </div>
           </div>
-          <div className="w-px h-5 bg-slate-300"></div>
-          <div>
-            <span className="text-slate-400 block text-[9px] uppercase font-bold">Ambient Temp</span>
-            <span className="font-bold text-cyan-700">{kpi.open_meteo_ambient.ambient_temperature}°C</span>
-          </div>
-          <div className="w-px h-5 bg-slate-300"></div>
-          <div>
-            <span className="text-slate-400 block text-[9px] uppercase font-bold">Wind Vectors</span>
-            <span className="font-bold text-indigo-700">{kpi.open_meteo_ambient.wind_speed} km/h</span>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* 7 KPI Cards (Sharp Rectangular) */}

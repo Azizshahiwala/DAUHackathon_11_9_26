@@ -54,7 +54,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
 
-      {/* Center: Open-Meteo Real-time Ambient Telemetry */}
+      {/* Center: Tomorrow.io Real-time Ambient Telemetry */}
       {weather && (
         <div className="hidden xl:flex items-center gap-4 px-4 py-1.5 rounded-lg bg-industrial-850/80 border border-industrial-800 text-xs text-slate-300">
           <div className="flex items-center gap-1.5 text-amber-400">
@@ -71,12 +71,25 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Wind className="w-3.5 h-3.5" />
             <span>Wind: <strong>{weather.wind_speed} km/h</strong></span>
           </div>
-          <span className="text-[10px] text-slate-500 font-mono">(Open-Meteo)</span>
+          <span className="text-[10px] text-slate-500 font-mono">(Tomorrow.io)</span>
         </div>
       )}
 
       {/* Right: Mode & Actions */}
       <div className="flex items-center gap-3">
+        {/* Inject Anomaly Button */}
+        <button 
+          onClick={async () => {
+            await api.injectMockFaultAsset();
+            window.location.reload();
+          }}
+          title="Inject a critical simulated asset dynamically"
+          className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 text-xs font-bold uppercase transition-all"
+        >
+          <Activity className="w-3.5 h-3.5" />
+          Inject Anomaly
+        </button>
+
         {/* Backend Connectivity Pill */}
         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono bg-industrial-800 border border-industrial-700">
           <Radio className={`w-3 h-3 ${isMock ? 'text-amber-400 animate-pulse' : 'text-emerald-400'}`} />

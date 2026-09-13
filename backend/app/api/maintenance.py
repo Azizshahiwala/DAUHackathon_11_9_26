@@ -27,12 +27,35 @@ def task_to_frontend(m):
         "assigned_to": str(m.technician_id) if m.technician_id else None,
     }
 
+def alert_to_task(alert):
+    return {
+        "id": f"TASK-{alert.asset_id}",
+        "asset_id": str(alert.asset_id),
+        "issue": f"Autoencoder Trigger: {alert.risk_level} Anomaly",
+        "fault_type": "combined" if alert.anomaly_score > 90 else "soiling",
+        "risk": alert.anomaly_score,
+        "priority": "URGENT" if alert.risk_level == "Critical" else "HIGH",
+        "recommended_action": "Immediate on-site technical inspection required.",
+        "estimated_energy_loss_kwh": alert.estimated_energy_loss,
+        "estimated_revenue_loss": alert.estimated_revenue_loss,
+        "maintenance_status": "PENDING",
+        "created_at": alert.timestamp.isoformat() if alert.timestamp else None,
+        "assigned_to": "Field Dispatch",
+    }
 
 @maintenance_bp.route("/", methods=["GET"])
 @jwt_required()
 def list_tasks():
+    # Fetch actual logs
     logs = MaintenanceLog.query.order_by(MaintenanceLog.timestamp.desc()).all()
-    return jsonify({"success": True, "data": [task_to_frontend(m) for m in logs]}), 200
+    tasks = [task_to_frontend(m) for m in logs]
+    
+    # Also inject active alerts as pending maintenance tasks for the board
+    active_alerts = Alert.query.filter_by(status="ACTIVE").all()
+    for alert in active_alerts:
+        tasks.append(alert_to_task(alert))
+        
+    return jsonify({"success": True, "data": tasks}), 200
 
 
 @maintenance_bp.route("/<int:task_id>", methods=["PATCH"])

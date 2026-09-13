@@ -23,7 +23,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess, onGoRegister }) =>
     }
     setLoading(true);
     try {
-      await api.login(email, password);
+      await api.login({ email, password });
       onLoginSuccess();
     } catch (err: any) {
       setError(err.message || 'Login failed. Please check your credentials.');

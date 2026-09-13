@@ -98,7 +98,10 @@ export const Settings: React.FC = () => {
                 <input
                   type="text"
                   value={flaskUrl}
-                  onChange={(e) => setFlaskUrl(e.target.value)}
+                  onChange={(e) => {
+                    setFlaskUrl(e.target.value);
+                    api.setBaseUrl(e.target.value);
+                  }}
                   disabled={isMockMode}
                   className="w-full bg-industrial-850 border border-industrial-700/80 rounded-xl px-3 py-2 text-xs font-mono text-slate-200 disabled:opacity-50"
                 />

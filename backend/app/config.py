@@ -23,6 +23,8 @@ class Config:
     DBPORT = None
     FLASK_ENV = None
     OPENMETEO_API = None
+    TOMORROW_API = None
+    TOMORROW_API_KEY = None
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True}
 
@@ -43,7 +45,8 @@ class Config:
             "DBPASSWORD",
             "DBPORT",
             "FLASK_ENV",
-            "OPENMETEO_API",
+            "TOMORROW_API",
+            "TOMORROW_API_KEY",
         ]
         try:
             for var in required_variables:
@@ -58,7 +61,8 @@ class Config:
             cls.DBPASSWORD     = os.getenv("DBPASSWORD")
             cls.DBPORT         = os.getenv("DBPORT")
             cls.FLASK_ENV      = os.getenv("FLASK_ENV")
-            cls.OPENMETEO_API  = os.getenv("OPENMETEO_API")
+            cls.TOMORROW_API   = os.getenv("TOMORROW_API")
+            cls.TOMORROW_API_KEY = os.getenv("TOMORROW_API_KEY")
         except ConfigError as err:
             print(err)
         except Exception as err:
@@ -76,17 +80,12 @@ class Config:
         }
 
     @classmethod
-    def load_openmeteo(cls):
-        """Return the base URL for the Open-Meteo ECMWF API.
-
-        Reads OPENMETEO_API from the environment at call-time so it always
-        reflects the current value (useful in testing).
-        Raises ConfigError if the variable is missing or empty.
-        """
-        url = os.getenv("OPENMETEO_API")
-        if not url:
-            raise ConfigError(error="OPENMETEO_API environment variable is not set.")
-        return url
+    def load_tomorrow_api(cls):
+        url = os.getenv("TOMORROW_API")
+        key = os.getenv("TOMORROW_API_KEY")
+        if not url or not key:
+            raise ConfigError(error="Tomorrow API environment variables are not set.")
+        return url, key
 
 
 class DevelopmentConfig(Config):

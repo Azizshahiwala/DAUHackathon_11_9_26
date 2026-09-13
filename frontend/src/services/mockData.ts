@@ -9,12 +9,14 @@ import {
 } from '../types';
 
 export const MOCK_WEATHER: WeatherData = {
-  ambient_temperature: 32.4,
-  solar_radiation: 875.0,
-  cloud_cover: 12.0,
-  wind_speed: 18.5,
-  wind_direction: 240,
+  ambient_temperature: 28.1,
+  solar_radiation: 820.0,
+  cloud_cover: 15.0,
+  wind_speed: 12.5,
+  wind_direction: 180,
   last_fetched: new Date().toISOString(),
+  source: "Tomorrow.io (https://api.tomorrow.io/v4/timelines)",
+  model: "Tomorrow.io Global Environmental Intelligence",
 };
 
 export const MOCK_MODEL_PERFORMANCE: ModelPerformance = {
@@ -49,340 +51,269 @@ export const MOCK_MODEL_PERFORMANCE: ModelPerformance = {
   notes: "Evaluation performed on simulated 20,000 readings sensor dataset (14,988 normal, 5,012 abnormal).",
 };
 
-// Generate 100 realistic assets (90 Healthy, 6 Warning, 4 Critical)
-export const MOCK_ASSETS: Asset[] = [];
-
-// 1. Critical Asset P999 (from problem statement example)
-MOCK_ASSETS.push({
-  asset_id: "P999",
-  asset_type: "solar_panel",
-  location: "Sector 7 - Array D",
-  string_group: "String-D4",
-  status: "CRITICAL",
-  current_readings: {
+export const MOCK_ASSETS: Asset[] = [
+  {
     asset_id: "P999",
-    timestamp: new Date().toISOString(),
-    temperature: 68.4,
-    voltage: 24.2,
-    current: 3.1,
-    irradiance: 880,
-    soiling: 45.0,
-    power_output: 0.075,
-    condition: "abnormal",
-    fault_type: "combined",
-  },
-  prediction: {
-    asset_id: "P999",
-    anomaly: true,
-    reconstruction_error: 50.293289,
-    risk_score: 100,
-    risk_level: "CRITICAL",
-    failure_risk: 95,
-    fault_type: "combined",
-    maintenance_priority: "URGENT",
-    recommended_action: "Immediate on-site panel washing and bypass diode thermal inspection.",
-    energy_loss_kwh: 6.62,
-    revenue_loss: 52.99,
-  },
-  last_updated: "2 mins ago",
-});
-
-// 2. Critical Asset P102 (Overheating)
-MOCK_ASSETS.push({
-  asset_id: "P102",
-  asset_type: "solar_panel",
-  location: "Sector 2 - Array A",
-  string_group: "String-A2",
-  status: "CRITICAL",
-  current_readings: {
-    asset_id: "P102",
-    timestamp: new Date().toISOString(),
-    temperature: 72.1,
-    voltage: 31.0,
-    current: 6.8,
-    irradiance: 870,
-    soiling: 12.0,
-    power_output: 0.21,
-    condition: "abnormal",
-    fault_type: "overheating",
-  },
-  prediction: {
-    asset_id: "P102",
-    anomaly: true,
-    reconstruction_error: 24.18432,
-    risk_score: 92,
-    risk_level: "CRITICAL",
-    failure_risk: 88,
-    fault_type: "overheating",
-    maintenance_priority: "URGENT",
-    recommended_action: "Check inverter thermal dissipation and junction box contact resistance.",
-    energy_loss_kwh: 4.80,
-    revenue_loss: 38.40,
-  },
-  last_updated: "5 mins ago",
-});
-
-// 3. Critical Asset W045 (Wind Turbine Low Voltage)
-MOCK_ASSETS.push({
-  asset_id: "W045",
-  asset_type: "wind_turbine",
-  location: "North Ridge Ridge-B",
-  string_group: "Turbine-B3",
-  status: "CRITICAL",
-  current_readings: {
-    asset_id: "W045",
-    timestamp: new Date().toISOString(),
-    temperature: 55.3,
-    voltage: 410.0,
-    current: 12.5,
-    irradiance: 0,
-    soiling: 5.0,
-    power_output: 5.12,
-    condition: "abnormal",
-    fault_type: "low_voltage",
-  },
-  prediction: {
-    asset_id: "W045",
-    anomaly: true,
-    reconstruction_error: 31.502,
-    risk_score: 95,
-    risk_level: "CRITICAL",
-    failure_risk: 90,
-    fault_type: "low_voltage",
-    maintenance_priority: "URGENT",
-    recommended_action: "Inspect slip ring generator brush assembly and transformer busbar.",
-    energy_loss_kwh: 18.20,
-    revenue_loss: 145.60,
-  },
-  last_updated: "8 mins ago",
-});
-
-// 4. Critical Asset P314 (Low Current)
-MOCK_ASSETS.push({
-  asset_id: "P314",
-  asset_type: "solar_panel",
-  location: "Sector 4 - Array C",
-  string_group: "String-C1",
-  status: "CRITICAL",
-  current_readings: {
-    asset_id: "P314",
-    timestamp: new Date().toISOString(),
-    temperature: 42.0,
-    voltage: 36.5,
-    current: 2.1,
-    irradiance: 860,
-    soiling: 18.0,
-    power_output: 0.076,
-    condition: "abnormal",
-    fault_type: "low_current",
-  },
-  prediction: {
-    asset_id: "P314",
-    anomaly: true,
-    reconstruction_error: 18.91,
-    risk_score: 86,
-    risk_level: "HIGH",
-    failure_risk: 82,
-    fault_type: "low_current",
-    maintenance_priority: "HIGH",
-    recommended_action: "Trace string MC4 connectors for loose crimping or microcracks.",
-    energy_loss_kwh: 3.90,
-    revenue_loss: 31.20,
-  },
-  last_updated: "10 mins ago",
-});
-
-// 5-10: Warning Assets
-const warningFaults: Array<{ fault: any; action: string; lossKwh: number; lossRev: number }> = [
-  { fault: "soiling", action: "Schedule scheduled automated surface rinse.", lossKwh: 2.1, lossRev: 16.80 },
-  { fault: "partial_shading", action: "Trim adjacent vegetation obstructing low angle sun.", lossKwh: 1.8, lossRev: 14.40 },
-  { fault: "power_degradation", action: "Perform IV curve tracer diagnostics.", lossKwh: 2.5, lossRev: 20.00 },
-  { fault: "gradual_degradation", action: "Monitor monthly degradation slope.", lossKwh: 1.2, lossRev: 9.60 },
-  { fault: "soiling", action: "Deploy anti-reflective coating inspection team.", lossKwh: 2.0, lossRev: 16.00 },
-  { fault: "partial_shading", action: "Verify tracker angle calibration.", lossKwh: 1.7, lossRev: 13.60 },
-];
-
-for (let i = 0; i < 6; i++) {
-  const idNum = 201 + i;
-  const wf = warningFaults[i];
-  MOCK_ASSETS.push({
-    asset_id: `P${idNum}`,
     asset_type: "solar_panel",
-    location: `Sector ${(i % 4) + 1} - Array ${String.fromCharCode(65 + (i % 3))}`,
-    string_group: `String-${String.fromCharCode(65 + (i % 3))}${i + 1}`,
-    status: "WARNING",
+    location: "Sector 7 - Array D",
+    string_group: "String-D4",
+    status: "CRITICAL",
     current_readings: {
-      asset_id: `P${idNum}`,
+      asset_id: "P999",
       timestamp: new Date().toISOString(),
-      temperature: 44.5 + i * 1.5,
-      voltage: 34.2 - i * 0.4,
-      current: 7.2 - i * 0.3,
-      irradiance: 850,
-      soiling: 22.0 + i * 2.5,
-      power_output: 0.24 - i * 0.015,
+      temperature: 68.4,
+      voltage: 24.2,
+      current: 3.1,
+      irradiance: 880.0,
+      soiling: 45.0,
+      power_output: 0.075,
       condition: "abnormal",
-      fault_type: wf.fault,
+      fault_type: "combined",
     },
     prediction: {
-      asset_id: `P${idNum}`,
+      asset_id: "P999",
       anomaly: true,
-      reconstruction_error: 2.15 + i * 0.85,
-      risk_score: 55 + i * 4,
-      risk_level: "MEDIUM",
-      failure_risk: 48 + i * 5,
-      fault_type: wf.fault,
-      maintenance_priority: "MEDIUM",
-      recommended_action: wf.action,
-      energy_loss_kwh: wf.lossKwh,
-      revenue_loss: wf.lossRev,
+      reconstruction_error: 44.3142,
+      risk_score: 100,
+      risk_level: "CRITICAL",
+      failure_risk: 95,
+      fault_type: "combined",
+      maintenance_priority: "URGENT",
+      recommended_action: "Immediate on-site panel washing and bypass diode thermal replacement.",
+      energy_loss_kwh: 6.65,
+      revenue_loss: 53.18,
     },
-    last_updated: `${12 + i * 3} mins ago`,
-  });
-}
-
-// 11-100: Healthy Assets (90 total healthy)
-for (let i = 11; i <= 100; i++) {
-  const isTurbine = i % 15 === 0;
-  const assetId = isTurbine ? `W${String(i).padStart(3, '0')}` : `P${String(i).padStart(3, '0')}`;
-  const baseTemp = 36.0 + (i % 8) * 1.1;
-  const baseVolt = isTurbine ? 690.0 : 38.2;
-  const baseCurr = isTurbine ? 24.5 : 9.3;
-  const basePower = isTurbine ? 16.9 : 0.355;
-  const recError = 0.12 + ((i * 17) % 45) / 100; // Well below 1.033187
-
-  MOCK_ASSETS.push({
-    asset_id: assetId,
-    asset_type: isTurbine ? "wind_turbine" : "solar_panel",
-    location: `Sector ${(i % 6) + 1} - Array ${String.fromCharCode(65 + (i % 4))}`,
-    string_group: `String-${String.fromCharCode(65 + (i % 4))}${(i % 5) + 1}`,
+    last_updated: "Just now",
+  },
+  {
+    asset_id: "P102",
+    asset_type: "solar_panel",
+    location: "Sector 2 - Array A",
+    string_group: "String-A2",
+    status: "CRITICAL",
+    current_readings: {
+      asset_id: "P102",
+      timestamp: new Date().toISOString(),
+      temperature: 72.1,
+      voltage: 31.0,
+      current: 6.8,
+      irradiance: 870.0,
+      soiling: 12.0,
+      power_output: 0.211,
+      condition: "abnormal",
+      fault_type: "overheating",
+    },
+    prediction: {
+      asset_id: "P102",
+      anomaly: true,
+      reconstruction_error: 24.1843,
+      risk_score: 92,
+      risk_level: "CRITICAL",
+      failure_risk: 88,
+      fault_type: "overheating",
+      maintenance_priority: "URGENT",
+      recommended_action: "Check inverter thermal dissipation and junction box contact resistance.",
+      energy_loss_kwh: 4.80,
+      revenue_loss: 38.40,
+    },
+    last_updated: "Just now",
+  },
+  {
+    asset_id: "W045",
+    asset_type: "wind_turbine",
+    location: "North Ridge Ridge-B",
+    string_group: "Turbine-B3",
+    status: "CRITICAL",
+    current_readings: {
+      asset_id: "W045",
+      timestamp: new Date().toISOString(),
+      temperature: 55.3,
+      voltage: 410.0,
+      current: 12.5,
+      irradiance: 0,
+      soiling: 5.0,
+      power_output: 5.12,
+      condition: "abnormal",
+      fault_type: "low_voltage",
+    },
+    prediction: {
+      asset_id: "W045",
+      anomaly: true,
+      reconstruction_error: 31.502,
+      risk_score: 95,
+      risk_level: "CRITICAL",
+      failure_risk: 90,
+      fault_type: "low_voltage",
+      maintenance_priority: "URGENT",
+      recommended_action: "Inspect wind generator phase busbar contactors and pitch control bearings.",
+      energy_loss_kwh: 12.5,
+      revenue_loss: 100.0,
+    },
+    last_updated: "Just now",
+  },
+  {
+    asset_id: "P078",
+    asset_type: "solar_panel",
+    location: "Sector 5 - Array C",
+    string_group: "String-C3",
+    status: "WARNING",
+    current_readings: {
+      asset_id: "P078",
+      timestamp: new Date().toISOString(),
+      temperature: 42.0,
+      voltage: 36.5,
+      current: 4.5,
+      irradiance: 840.0,
+      soiling: 6.0,
+      power_output: 0.164,
+      condition: "abnormal",
+      fault_type: "partial_shading",
+    },
+    prediction: {
+      asset_id: "P078",
+      anomaly: true,
+      reconstruction_error: 2.15,
+      risk_score: 62,
+      risk_level: "HIGH",
+      failure_risk: 45,
+      fault_type: "partial_shading",
+      maintenance_priority: "HIGH",
+      recommended_action: "Investigate vegetation clearance and localized module obstruction.",
+      energy_loss_kwh: 1.85,
+      revenue_loss: 14.80,
+    },
+    last_updated: "Just now",
+  },
+  {
+    asset_id: "P044",
+    asset_type: "solar_panel",
+    location: "Sector 3 - Array B",
+    string_group: "String-B2",
+    status: "WARNING",
+    current_readings: {
+      asset_id: "P044",
+      timestamp: new Date().toISOString(),
+      temperature: 39.5,
+      voltage: 37.0,
+      current: 5.8,
+      irradiance: 850.0,
+      soiling: 34.5,
+      power_output: 0.215,
+      condition: "abnormal",
+      fault_type: "soiling",
+    },
+    prediction: {
+      asset_id: "P044",
+      anomaly: true,
+      reconstruction_error: 1.88,
+      risk_score: 58,
+      risk_level: "MEDIUM",
+      failure_risk: 40,
+      fault_type: "soiling",
+      maintenance_priority: "MEDIUM",
+      recommended_action: "Schedule automated or manual array surface washing cycle.",
+      energy_loss_kwh: 1.62,
+      revenue_loss: 12.96,
+    },
+    last_updated: "Just now",
+  },
+  {
+    asset_id: "P001",
+    asset_type: "solar_panel",
+    location: "Sector 1 - Array A",
+    string_group: "String-A1",
     status: "HEALTHY",
     current_readings: {
-      asset_id: assetId,
+      asset_id: "P001",
       timestamp: new Date().toISOString(),
-      temperature: Number(baseTemp.toFixed(1)),
-      voltage: Number(baseVolt.toFixed(1)),
-      current: Number(baseCurr.toFixed(2)),
-      irradiance: isTurbine ? 0 : 865,
-      soiling: Number((3.0 + (i % 5)).toFixed(1)),
-      power_output: Number(basePower.toFixed(3)),
+      temperature: 36.2,
+      voltage: 39.8,
+      current: 8.9,
+      irradiance: 850.0,
+      soiling: 3.5,
+      power_output: 0.354,
       condition: "normal",
       fault_type: "none",
     },
     prediction: {
-      asset_id: assetId,
+      asset_id: "P001",
       anomaly: false,
-      reconstruction_error: Number(recError.toFixed(4)),
-      risk_score: Math.floor(5 + ((i * 7) % 15)),
+      reconstruction_error: 0.12,
+      risk_score: 8,
       risk_level: "NORMAL",
-      failure_risk: Math.floor(3 + ((i * 5) % 10)),
+      failure_risk: 5,
       fault_type: "none",
       maintenance_priority: "ROUTINE",
-      recommended_action: "Standard telemetry monitoring. Next inspection in 6 months.",
+      recommended_action: "Asset operating within nominal range. Continue routine monitoring.",
       energy_loss_kwh: 0,
       revenue_loss: 0,
     },
     last_updated: "Just now",
-  });
-}
-
-// Active Alerts
-export const MOCK_ALERTS: Alert[] = [
-  {
-    id: "ALT-9001",
-    asset_id: "P999",
-    severity: "CRITICAL",
-    title: "Critical Combined Soiling & Voltage Anomaly",
-    message: "Reconstruction error (50.29) exceeded threshold (1.033). Extreme output drop with high thermal buildup.",
-    risk: 100,
-    status: "ACTIVE",
-    created_at: "10 mins ago",
-  },
-  {
-    id: "ALT-9002",
-    asset_id: "W045",
-    severity: "CRITICAL",
-    title: "Turbine Busbar Voltage Collapse",
-    message: "Generator phase voltage down to 410V under 18.5 km/h wind. Risk score 95.",
-    risk: 95,
-    status: "ACTIVE",
-    created_at: "18 mins ago",
-  },
-  {
-    id: "ALT-9003",
-    asset_id: "P102",
-    severity: "HIGH",
-    title: "Junction Box Overheating Warning",
-    message: "Core temperature spiked to 72.1°C under normal ambient conditions.",
-    risk: 92,
-    status: "ACTIVE",
-    created_at: "25 mins ago",
-  },
-  {
-    id: "ALT-9004",
-    asset_id: "P314",
-    severity: "HIGH",
-    title: "String Under-Current Divergence",
-    message: "Current collapsed to 2.1A despite 860 W/m² solar irradiance.",
-    risk: 86,
-    status: "ACKNOWLEDGED",
-    created_at: "45 mins ago",
-  },
-  {
-    id: "ALT-9005",
-    asset_id: "P201",
-    severity: "MEDIUM",
-    title: "Progressive Surface Soiling Build-up",
-    message: "22% surface obscuration detected. Power output dropped by 14%.",
-    risk: 55,
-    status: "ACTIVE",
-    created_at: "1 hour ago",
-  },
-  {
-    id: "ALT-9006",
-    asset_id: "P202",
-    severity: "MEDIUM",
-    title: "Partial Obstruction Shadowing",
-    message: "Asymmetric string current profile during peak irradiance.",
-    risk: 59,
-    status: "RESOLVED",
-    created_at: "2 hours ago",
-  },
+  }
 ];
 
-// Maintenance Queue Tasks
+export const MOCK_ALERTS: Alert[] = [
+  {
+    id: "ALT-P999",
+    asset_id: "P999",
+    severity: "CRITICAL",
+    title: "Critical Incident: Combined Bypass Diode & Soiling Failure",
+    message: "PyTorch Autoencoder error (44.31) exceeded threshold 1.033. Cell temperature 68.4°C and 45% soiling. Est. loss: $53.18/cycle.",
+    risk: 100,
+    status: "ACTIVE",
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "ALT-P102",
+    asset_id: "P102",
+    severity: "CRITICAL",
+    title: "Thermal Runaway Alert: Inverter Overheating",
+    message: "Junction box temperature 72.1°C exceeded critical safety threshold. Risk score 92. Immediate inspection required.",
+    risk: 92,
+    status: "ACTIVE",
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "ALT-W045",
+    asset_id: "W045",
+    severity: "CRITICAL",
+    title: "Turbine Alert: Generator Voltage Sag",
+    message: "Busbar voltage dropped to 410V under active generation. Power output depressed by 66%. Daily drag: $100.00.",
+    risk: 95,
+    status: "ACTIVE",
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "ALT-P078",
+    asset_id: "P078",
+    severity: "HIGH",
+    title: "Performance Warning: Partial Shading Detected",
+    message: "Available irradiance 840 W/m² but generated power suppressed below nominal baseline. Possible obstacle obscuration.",
+    risk: 62,
+    status: "ACTIVE",
+    created_at: new Date().toISOString(),
+  }
+];
+
 export const MOCK_MAINTENANCE_TASKS: MaintenanceTask[] = [
   {
-    id: "MT-001",
+    id: "TASK-P999",
     asset_id: "P999",
-    issue: "Combined multi-fault: Soiling + Thermal hotspot",
+    issue: "Autoencoder Trigger: Combined Diode Failure + Extreme Soiling",
     fault_type: "combined",
     risk: 100,
     priority: "URGENT",
-    recommended_action: "Immediate on-site panel washing and bypass diode thermal inspection.",
-    estimated_energy_loss_kwh: 6.62,
-    estimated_revenue_loss: 52.99,
+    recommended_action: "Immediate on-site panel washing and bypass diode thermal replacement.",
+    estimated_energy_loss_kwh: 6.65,
+    estimated_revenue_loss: 53.18,
     maintenance_status: "PENDING",
-    created_at: "Today, 10:45 AM",
-    assigned_to: "Field Crew Alpha",
+    created_at: new Date().toISOString(),
+    assigned_to: "Field Dispatch Alpha",
   },
   {
-    id: "MT-002",
-    asset_id: "W045",
-    issue: "Low voltage generator phase imbalance",
-    fault_type: "low_voltage",
-    risk: 95,
-    priority: "URGENT",
-    recommended_action: "Inspect slip ring generator brush assembly and transformer busbar.",
-    estimated_energy_loss_kwh: 18.20,
-    estimated_revenue_loss: 145.60,
-    maintenance_status: "IN_PROGRESS",
-    created_at: "Today, 09:30 AM",
-    assigned_to: "Turbine Specialist Dave",
-  },
-  {
-    id: "MT-003",
+    id: "TASK-P102",
     asset_id: "P102",
-    issue: "Overheating junction box (72.1°C)",
+    issue: "Autoencoder Trigger: Inverter Overheating (72.1°C)",
     fault_type: "overheating",
     risk: 92,
     priority: "URGENT",
@@ -390,60 +321,35 @@ export const MOCK_MAINTENANCE_TASKS: MaintenanceTask[] = [
     estimated_energy_loss_kwh: 4.80,
     estimated_revenue_loss: 38.40,
     maintenance_status: "PENDING",
-    created_at: "Today, 08:15 AM",
+    created_at: new Date().toISOString(),
+    assigned_to: "Field Dispatch Bravo",
   },
   {
-    id: "MT-004",
-    asset_id: "P314",
-    issue: "Low string current (2.1A vs 9.5A baseline)",
-    fault_type: "low_current",
-    risk: 86,
-    priority: "HIGH",
-    recommended_action: "Trace string MC4 connectors for loose crimping or microcracks.",
-    estimated_energy_loss_kwh: 3.90,
-    estimated_revenue_loss: 31.20,
+    id: "TASK-W045",
+    asset_id: "W045",
+    issue: "Autoencoder Trigger: Turbine Generator Busbar Collapse",
+    fault_type: "low_voltage",
+    risk: 95,
+    priority: "URGENT",
+    recommended_action: "Inspect wind generator phase busbar contactors and pitch control bearings.",
+    estimated_energy_loss_kwh: 12.50,
+    estimated_revenue_loss: 100.00,
     maintenance_status: "SCHEDULED",
-    created_at: "Yesterday, 16:20 PM",
-  },
-  {
-    id: "MT-005",
-    asset_id: "P201",
-    issue: "Surface soiling causing 14% yield suppression",
-    fault_type: "soiling",
-    risk: 55,
-    priority: "MEDIUM",
-    recommended_action: "Schedule scheduled automated surface rinse.",
-    estimated_energy_loss_kwh: 2.10,
-    estimated_revenue_loss: 16.80,
-    maintenance_status: "SCHEDULED",
-    created_at: "Yesterday, 14:00 PM",
-  },
-  {
-    id: "MT-006",
-    asset_id: "P203",
-    issue: "Accelerated cell power degradation curve",
-    fault_type: "power_degradation",
-    risk: 63,
-    priority: "MEDIUM",
-    recommended_action: "Perform IV curve tracer diagnostics.",
-    estimated_energy_loss_kwh: 2.50,
-    estimated_revenue_loss: 20.00,
-    maintenance_status: "PENDING",
-    created_at: "2 days ago",
-  },
+    created_at: new Date().toISOString(),
+    assigned_to: "Turbine Tech Team",
+  }
 ];
 
-// 24-point historical sensor readings for Asset Details view (Asset P999 failure timeline)
 export const generateAssetHistory = (assetId: string) => {
-  const isP999 = assetId === "P999";
+  const asset = MOCK_ASSETS.find(a => a.asset_id === assetId);
+  const isCritical = asset?.status === 'CRITICAL' || asset?.prediction?.anomaly === true;
   const points = [];
   const now = Date.now();
 
   for (let i = 24; i >= 0; i--) {
     const time = new Date(now - i * 3600 * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     
-    if (isP999 && i <= 8) {
-      // Degraded state on P999 in the last 8 hours
+    if (isCritical && i <= 8) {
       points.push({
         time,
         temperature: Number((50 + (8 - i) * 2.3).toFixed(1)),
@@ -456,7 +362,6 @@ export const generateAssetHistory = (assetId: string) => {
         threshold: 1.033187,
       });
     } else {
-      // Normal nominal conditions
       points.push({
         time,
         temperature: Number((37.5 + Math.sin(i) * 3).toFixed(1)),
@@ -474,25 +379,21 @@ export const generateAssetHistory = (assetId: string) => {
   return points;
 };
 
-// Summary KPI calculations
 export const getDashboardKPI = (): DashboardKPI => {
   const healthy = MOCK_ASSETS.filter(a => a.status === 'HEALTHY').length;
   const warning = MOCK_ASSETS.filter(a => a.status === 'WARNING').length;
   const critical = MOCK_ASSETS.filter(a => a.status === 'CRITICAL').length;
-  const activeAlerts = MOCK_ALERTS.filter(a => a.status === 'ACTIVE').length;
-  
-  const totalEnergyLoss = MOCK_ASSETS.reduce((sum, a) => sum + (a.prediction?.energy_loss_kwh || 0), 0);
-  const totalRevenueLoss = MOCK_ASSETS.reduce((sum, a) => sum + (a.prediction?.revenue_loss || 0), 0);
+  const total = MOCK_ASSETS.length;
 
   return {
-    total_assets: MOCK_ASSETS.length,
+    total_assets: total,
     healthy_assets: healthy,
     warning_assets: warning,
     critical_assets: critical,
-    active_alerts: activeAlerts,
-    total_energy_loss_kwh: Number(totalEnergyLoss.toFixed(2)),
-    total_revenue_loss: Number(totalRevenueLoss.toFixed(2)),
-    fleet_efficiency: 91.4,
-    open_meteo_ambient: MOCK_WEATHER,
+    active_alerts: MOCK_ALERTS.filter(a => a.status === 'ACTIVE').length,
+    total_energy_loss_kwh: 25.4,
+    total_revenue_loss: 204.38,
+    fleet_efficiency: 92.4,
+    open_meteo_ambient: MOCK_WEATHER
   };
 };

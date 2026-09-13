@@ -39,7 +39,7 @@ export const Register: React.FC<RegisterProps> = ({ onGoLogin }) => {
     if (password.length < 6)            { setError('Password must be at least 6 characters.'); return; }
     setLoading(true);
     try {
-      await api.register(email, password, role);
+      await api.register({ email, password, role });
       setSuccess(true);
     } catch (err: any) {
       setError(err.message || 'Registration failed. Please try again.');
@@ -58,7 +58,7 @@ export const Register: React.FC<RegisterProps> = ({ onGoLogin }) => {
             <CheckCircle2 className="w-14 h-14 text-brand-green mx-auto mb-4" />
             <h2 className="text-white text-xl font-bold uppercase mb-2">Access Granted</h2>
             <p className="text-industrial-400 text-sm mb-6">
-              Your operator account has been created successfully.
+              Your account has been created successfully.
             </p>
             <button
               onClick={onGoLogin}
@@ -88,7 +88,7 @@ export const Register: React.FC<RegisterProps> = ({ onGoLogin }) => {
             <span className="text-3xl font-light text-urbanic-orange uppercase tracking-tight">Pulse</span>
           </div>
           <p className="text-industrial-400 text-sm uppercase tracking-widest font-mono">
-            Operator Registration
+            Account Registration
           </p>
         </div>
 
@@ -97,7 +97,7 @@ export const Register: React.FC<RegisterProps> = ({ onGoLogin }) => {
             Request Access
           </h2>
           <p className="text-industrial-400 text-xs mb-6">
-            Create your Sole Pulse operator account
+            Create your Sole Pulse account
           </p>
 
           {error && (
@@ -222,7 +222,7 @@ export const Register: React.FC<RegisterProps> = ({ onGoLogin }) => {
                   Creating Account...
                 </>
               ) : (
-                'Create Operator Account'
+                'Create Account'
               )}
             </button>
           </form>
