@@ -16,3 +16,4 @@ env/
 backend/app/dist/
 postman
 .postman
+*.mp4

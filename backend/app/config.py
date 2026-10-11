@@ -16,11 +16,11 @@ class Config:
     FLASK_DEBUG = None
     SECRET_KEY = None
     JWT_SECRET_KEY = None
-    DBHOSTNAME = None
-    DBDATABASE = None
-    DBUSERNAME = None
-    DBPASSWORD = None
-    DBPORT = None
+    SBHOSTNAME = None
+    SBDATABASE = None
+    SBUSERNAME = None
+    SBPASSWORD = None
+    SBPORT = None
     FLASK_ENV = None
     OPENMETEO_API = None
     TOMORROW_API = None
@@ -39,11 +39,11 @@ class Config:
             "FLASK_DEBUG",
             "SECRET_KEY",
             "JWT_SECRET_KEY",
-            "DBHOSTNAME",
-            "DBDATABASE",
-            "DBUSERNAME",
-            "DBPASSWORD",
-            "DBPORT",
+            "SBHOSTNAME",
+            "SBDATABASE",
+            "SBUSERNAME",
+            "SBPASSWORD",
+            "SBPORT",
             "FLASK_ENV",
             "TOMORROW_API",
             "TOMORROW_API_KEY",
@@ -55,11 +55,11 @@ class Config:
 
             cls.SECRET_KEY     = os.getenv("SECRET_KEY")
             cls.JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-            cls.DBHOSTNAME     = os.getenv("DBHOSTNAME")
-            cls.DBDATABASE     = os.getenv("DBDATABASE")
-            cls.DBUSERNAME     = os.getenv("DBUSERNAME")
-            cls.DBPASSWORD     = os.getenv("DBPASSWORD")
-            cls.DBPORT         = os.getenv("DBPORT")
+            cls.SBHOSTNAME     = os.getenv("SBHOSTNAME")
+            cls.SBDATABASE     = os.getenv("SBDATABASE")
+            cls.SBUSERNAME     = os.getenv("SBUSERNAME")
+            cls.SBPASSWORD     = os.getenv("SBPASSWORD")
+            cls.SBPORT         = os.getenv("SBPORT")
             cls.FLASK_ENV      = os.getenv("FLASK_ENV")
             cls.TOMORROW_API   = os.getenv("TOMORROW_API")
             cls.TOMORROW_API_KEY = os.getenv("TOMORROW_API_KEY")
@@ -72,11 +72,11 @@ class Config:
     def getDBvariables(cls):
         """Return a dict of database connection variables."""
         return {
-            "HOSTNAME": cls.DBHOSTNAME,
-            "DATABASE": cls.DBDATABASE,
-            "USERNAME": cls.DBUSERNAME,
-            "PASSWORD": cls.DBPASSWORD,
-            "PORT": cls.DBPORT,
+            "HOSTNAME": cls.SBHOSTNAME,
+            "DATABASE": cls.SBDATABASE,
+            "USERNAME": cls.SBUSERNAME,
+            "PASSWORD": cls.SBPASSWORD,
+            "PORT": cls.SBPORT,
         }
 
     @classmethod

@@ -1,0 +1,27 @@
+1. Problem statement overview
+
+Unplanned downtime in solar and wind farms can reduce energy generation and revenue. Manual inspection of a
+large number of panels or turbines is slow, expensive, and may miss early signs of degradation. The proposed
+system uses simulated IoT sensor data to detect anomalies and degradation before a serious failure occurs.
+
+The main idea is simple: instead of waiting for an asset to fail, the system continuously watches its condition and
+gives the operator an early warning.
+
+2. Intro
+
+Welcome, my name is Aziz Shahiwala. I am the team leader! i worked with Vivek Wadhwani and Jayesh Vatwani. 
+We will show project on "Predictive Maintenance for Solar & Wind Assets".
+
+3. Technologies used
+
+Frontend — React + TypeScript: Operator/technician dashboards, charts, asset status, and alerts.
+Backend — Flask + Python: REST APIs, business logic, authentication, and ML integration.
+Database — PostgreSQL + SQL: Assets, sensor readings, predictions, alerts, and maintenance history.
+AI/ML — Pandas + NumPy + PyTorch: Data preparation, feature engineering, anomaly detection, model training,
+and risk scoring.
+IoT — Sensor simulation / integration: Generate or receive vibration, temperature, current, soiling, and other
+readings.
+
+4. Project Demo
+
+Lets walk through the project.
